@@ -1,0 +1,89 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bluetooth", "Bluetooth", "{749891C0-AF22-4C3F-A930-2E41D630B1AF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{20DCB6D0-0FE8-4323-BF79-7F4EE8E4C110}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RFPipe", "RFPipe", "{9A75422D-2E53-4E97-BB70-8DADE4E839FB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Wifi", "Wifi", "{F81A67AE-BEE0-4FD7-8554-826284763F38}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "XBee", "XBee", "{EB60742F-82D4-4025-B5D9-B90E471FE5EA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Grapevine", "Grapevine", "{BEE61D57-43DB-48BF-9358-954A116D083F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{3928E17A-8237-4636-8286-DB25B9A53295}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{A5E0D4A5-F32A-4FA0-8BCB-78D2BC74D95A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{96767D18-AB31-4E9B-9698-10E9CFFEC526}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{ED470E5A-3D27-43FE-9880-DE53EADC7C1E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{24D1B3A9-2B39-4CA0-AC2E-0A47A66C5163}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MockPipe", "MockPipe", "{CE7D5362-4ADD-4225-8112-26CC093EBADB}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Verdant.Vines.XBee.Shared", "XBee\Verdant.Vines.XBee.Shared\Verdant.Vines.XBee.Shared.shproj", "{48F502AE-320F-4766-89BC-6CE8660B780C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Verdant.Vines.XBee.UWP", "XBee\Verdant.Vines.XBee.UWP\Verdant.Vines.XBee.UWP.csproj", "{B4005428-09AF-436C-808F-A4E23349B4ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Verdant.Vines.XBee.NetMF", "XBee\Verdant.Vines.XBee.NetMF\Verdant.Vines.XBee.NetMF.csproj", "{DFE126D3-7216-4332-8CE5-DD0DA514C94F}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Verdant.Vines.Common.Shared", "Common\Verdant.Vines.Common.Shared\Verdant.Vines.Common.Shared.shproj", "{EB731624-9F46-4200-A94B-CF8F2822A45D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Verdant.Vines.Common.UWP", "Common\Verdant.Vines.Common.UWP\Verdant.Vines.Common.UWP.csproj", "{8C0ED330-E534-4780-A82F-D66995D9B502}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Verdant.Vines.Common.NetMF", "Common\Verdant.Vines.Common.NetMF\Verdant.Vines.Common.NetMF.csproj", "{50EE0E07-A632-49D1-9673-E2D0D9CC15DE}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Common\Verdant.Vines.Common.Shared\Verdant.Vines.Common.Shared.projitems*{eb731624-9f46-4200-a94b-cf8f2822a45d}*SharedItemsImports = 13
+		Common\Verdant.Vines.Common.Shared\Verdant.Vines.Common.Shared.projitems*{8c0ed330-e534-4780-a82f-d66995d9b502}*SharedItemsImports = 4
+		Common\Verdant.Vines.Common.Shared\Verdant.Vines.Common.Shared.projitems*{50ee0e07-a632-49d1-9673-e2d0d9cc15de}*SharedItemsImports = 4
+		XBee\Verdant.Vines.XBee.Shared\Verdant.Vines.XBee.Shared.projitems*{48f502ae-320f-4766-89bc-6ce8660b780c}*SharedItemsImports = 13
+		XBee\Verdant.Vines.XBee.Shared\Verdant.Vines.XBee.Shared.projitems*{b4005428-09af-436c-808f-a4e23349b4ed}*SharedItemsImports = 4
+		XBee\Verdant.Vines.XBee.Shared\Verdant.Vines.XBee.Shared.projitems*{dfe126d3-7216-4332-8ce5-dd0da514c94f}*SharedItemsImports = 4
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B4005428-09AF-436C-808F-A4E23349B4ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4005428-09AF-436C-808F-A4E23349B4ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4005428-09AF-436C-808F-A4E23349B4ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4005428-09AF-436C-808F-A4E23349B4ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFE126D3-7216-4332-8CE5-DD0DA514C94F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFE126D3-7216-4332-8CE5-DD0DA514C94F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFE126D3-7216-4332-8CE5-DD0DA514C94F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFE126D3-7216-4332-8CE5-DD0DA514C94F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C0ED330-E534-4780-A82F-D66995D9B502}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C0ED330-E534-4780-A82F-D66995D9B502}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C0ED330-E534-4780-A82F-D66995D9B502}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C0ED330-E534-4780-A82F-D66995D9B502}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50EE0E07-A632-49D1-9673-E2D0D9CC15DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50EE0E07-A632-49D1-9673-E2D0D9CC15DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50EE0E07-A632-49D1-9673-E2D0D9CC15DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50EE0E07-A632-49D1-9673-E2D0D9CC15DE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3928E17A-8237-4636-8286-DB25B9A53295} = {EB60742F-82D4-4025-B5D9-B90E471FE5EA}
+		{A5E0D4A5-F32A-4FA0-8BCB-78D2BC74D95A} = {F81A67AE-BEE0-4FD7-8554-826284763F38}
+		{96767D18-AB31-4E9B-9698-10E9CFFEC526} = {9A75422D-2E53-4E97-BB70-8DADE4E839FB}
+		{ED470E5A-3D27-43FE-9880-DE53EADC7C1E} = {BEE61D57-43DB-48BF-9358-954A116D083F}
+		{24D1B3A9-2B39-4CA0-AC2E-0A47A66C5163} = {749891C0-AF22-4C3F-A930-2E41D630B1AF}
+		{48F502AE-320F-4766-89BC-6CE8660B780C} = {EB60742F-82D4-4025-B5D9-B90E471FE5EA}
+		{B4005428-09AF-436C-808F-A4E23349B4ED} = {EB60742F-82D4-4025-B5D9-B90E471FE5EA}
+		{DFE126D3-7216-4332-8CE5-DD0DA514C94F} = {EB60742F-82D4-4025-B5D9-B90E471FE5EA}
+		{EB731624-9F46-4200-A94B-CF8F2822A45D} = {20DCB6D0-0FE8-4323-BF79-7F4EE8E4C110}
+		{8C0ED330-E534-4780-A82F-D66995D9B502} = {20DCB6D0-0FE8-4323-BF79-7F4EE8E4C110}
+		{50EE0E07-A632-49D1-9673-E2D0D9CC15DE} = {20DCB6D0-0FE8-4323-BF79-7F4EE8E4C110}
+	EndGlobalSection
+EndGlobal
