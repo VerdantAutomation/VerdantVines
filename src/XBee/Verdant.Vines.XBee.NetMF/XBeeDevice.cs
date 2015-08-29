@@ -22,7 +22,8 @@ namespace Verdant.Vines.XBee
 
         private uint Send(byte[] data, int offset, int length)
         {
-            throw new NotImplementedException();
+            _serialPort.Write(data, offset, length);
+            return (uint)length;
         }
 
         private void ReadThread()
