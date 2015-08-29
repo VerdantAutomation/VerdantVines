@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Verdant.Vines.XBee
 {
-    public partial class XBeeDevice
+    public partial class XBeeDevice : IDisposable
     {
         private readonly OutputPort _resetPort;
         private readonly OutputPort _sleepPort;
@@ -18,6 +18,11 @@ namespace Verdant.Vines.XBee
             _sleepPort = new OutputPort(sleepPin, false);
             _serialPort = port;
             new Thread(ReadThread).Start();
+        }
+
+        public void Dispose()
+        {
+
         }
 
         private uint Send(byte[] data, int offset, int length)

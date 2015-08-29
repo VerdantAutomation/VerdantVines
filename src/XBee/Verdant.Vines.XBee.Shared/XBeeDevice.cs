@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace Verdant.Vines.XBee
 {
-    public partial class XBeeDevice
+    public partial class XBeeDevice : IDisposable
     {
         private enum Api
         {

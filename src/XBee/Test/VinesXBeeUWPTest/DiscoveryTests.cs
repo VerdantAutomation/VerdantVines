@@ -20,7 +20,10 @@ namespace VinesXBeeUWPTest
         {
             var devices = await XBeeDevice.Discover();
             Assert.AreEqual(2, devices.Count);
+            foreach (var device in devices)
+            {
+                device.Dispose();
+            }
         }
-
     }
 }

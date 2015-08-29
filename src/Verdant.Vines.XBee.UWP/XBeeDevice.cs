@@ -8,6 +8,7 @@ using Windows.Devices.SerialCommunication;
 using Windows.Storage.Streams;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Diagnostics;
+using System.Threading;
 
 namespace Verdant.Vines.XBee
 {
@@ -22,9 +23,10 @@ namespace Verdant.Vines.XBee
     /// </summary>
     public partial class XBeeDevice : IDisposable
     {
-        private SerialDevice _serialDevice;
-        private IInputStream _input;
-        private IOutputStream _output;
+        private readonly SerialDevice _serialDevice;
+        private readonly IInputStream _input;
+        private readonly IOutputStream _output;
+        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
         public XBeeDevice(SerialDevice serialDevice)
         {
@@ -32,7 +34,7 @@ namespace Verdant.Vines.XBee
             _serialDevice.ErrorReceived += _serialDevice_ErrorReceived;
             _input = _serialDevice.InputStream;
             _output = _serialDevice.OutputStream;
-            Task.Run(() => ReadLoop());
+            Task.Run(() => ReadLoop(_cts.Token));
         }
 
         private void _serialDevice_ErrorReceived(SerialDevice sender, ErrorReceivedEventArgs args)
@@ -41,6 +43,7 @@ namespace Verdant.Vines.XBee
 
         public void Dispose()
         {
+            _cts.Cancel();
             _input.Dispose();
             _output.Dispose();
             _serialDevice.Dispose();
@@ -91,8 +94,9 @@ namespace Verdant.Vines.XBee
             return result.AsReadOnly();
         }
 
-        private async void ReadLoop()
+        private async void ReadLoop(CancellationToken ct)
         {
+            _serialDevice.ReadTimeout = TimeSpan.FromSeconds(1.0);
             while (true)
             {
                 try
@@ -102,9 +106,13 @@ namespace Verdant.Vines.XBee
                     var intro = new byte[1].AsBuffer();
                     var lenBuf = new byte[2].AsBuffer();
                     await _input.ReadAsync(intro, 1, InputStreamOptions.Partial);
+                    if (ct.IsCancellationRequested)
+                        break;
                     if (intro.Length > 0 && (char)intro.ToArray()[0] == 0x7e)
                     {
                         await _input.ReadAsync(lenBuf, 2, InputStreamOptions.None);
+                        if (ct.IsCancellationRequested)
+                            break;
                         if (lenBuf.Length == 2)
                         {
                             var lenArray = lenBuf.ToArray();
@@ -112,6 +120,8 @@ namespace Verdant.Vines.XBee
 
                             var dataBuffer = new byte[length + 1].AsBuffer();
                             await _input.ReadAsync(dataBuffer, length + 1, InputStreamOptions.None);
+                            if (ct.IsCancellationRequested)
+                                break;
                             if (dataBuffer.Length == length + 1)
                             {
                                 var dataArray = dataBuffer.ToArray();
@@ -130,6 +140,8 @@ namespace Verdant.Vines.XBee
                                 else
                                 {
                                     ProcessReceivedFrame(dataArray, 0, (int)length);
+                                    if (ct.IsCancellationRequested)
+                                        break;
                                 }
                             }
                         }
