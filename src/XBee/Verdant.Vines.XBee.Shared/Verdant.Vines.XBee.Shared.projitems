@@ -9,6 +9,7 @@
     <Import_RootNamespace>Verdant.Vines.XBee.Shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Exceptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)XBeeDevice.cs" />
   </ItemGroup>
 </Project>
