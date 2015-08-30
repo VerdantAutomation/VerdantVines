@@ -93,14 +93,19 @@ namespace Verdant.Vines.XBee
         private const int DefaultTimeout = 50000; // in mS
 
         // Avoid calling System.Text.Encoding repeatedly by just keeping a table of commands
+        private static byte[] AC = { 0x41, 0x43 };  // apply changes
         private static byte[] AI = { 0x41, 0x49 };  // association indication
         private static byte[] AP = { 0x41, 0x50 };  // api mode
+        private static byte[] FR = { 0x46, 0x52 };  // factory reset
         private static byte[] HV = { 0x48, 0x56 };  // hardware version
         private static byte[] NI = { 0x4E, 0x49 };  // node identifier
         private static byte[] NP = { 0x4E, 0x50 };  // max unicast payload size
-        private static byte[] SH = { 0x53, 0x48 };  // max unicast payload size
-        private static byte[] SL = { 0x53, 0x4C };  // max unicast payload size
+        private static byte[] NR = { 0x4E, 0x51 };  // network reset
+        private static byte[] SH = { 0x53, 0x48 };  // serial number high
+        private static byte[] SI = { 0x53, 0x49 };  // sleep immediate
+        private static byte[] SL = { 0x53, 0x4C };  // serial number low
         private static byte[] VR = { 0x56, 0x52 };  // firmware version
+        private static byte[] WR = { 0x57, 0x52 };  // write changes
 
         private readonly Hashtable _responseRecords = new Hashtable();
         private byte _frameId = 0x00;
@@ -155,6 +160,32 @@ namespace Verdant.Vines.XBee
         public ushort GetPayloadSize()
         {
             return GetUShortValue(NP);
+        }
+
+        public void ApplyQueuedChanges()
+        {
+            SendATCommand(AC);
+        }
+
+        public void SaveChanges()
+        {
+            SendATCommand(WR);
+        }
+
+        public void FactoryReset()
+        {
+            SendATCommand(FR);
+        }
+
+        public void NetworkReset(bool globalReset)
+        {
+            SendATCommand(NR,
+                new byte[] { (byte)(globalReset ? 1 : 0) });
+        }
+
+        public void Sleep()
+        {
+            SendATCommand(SI);
         }
 
         private uint GetUIntValue(byte[] command)
