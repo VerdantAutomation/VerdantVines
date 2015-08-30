@@ -168,6 +168,8 @@ namespace Verdant.Vines.XBee
                 catch (Exception ex)
                 {
                     Debug.WriteLine("Exception during serial read: " + ex);
+                    if (ct.IsCancellationRequested)
+                        return;
                 }
             }
         }

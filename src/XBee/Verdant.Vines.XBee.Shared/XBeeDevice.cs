@@ -17,6 +17,7 @@
 // limitations under the License.
 //
 using System;
+using System.Collections;
 using System.Text;
 using System.Threading;
 
@@ -65,35 +66,83 @@ namespace Verdant.Vines.XBee
             RxIPv4 = 0xb0,
         }
 
-        // Avoid calling System.Text.Encoding repeatedly by just keeping a table of commands
-        private static byte[] NI = { 0x4E, 0x49 };
+        private const int DefaultTimeout = 50000; // in mS
 
+        // Avoid calling System.Text.Encoding repeatedly by just keeping a table of commands
+        private static byte[] AP = { 0x41, 0x50 };  // api mode
+        private static byte[] NI = { 0x4E, 0x49 };  // node identifier
+
+        private readonly Hashtable _responseRecords = new Hashtable();
         private byte _frameId = 0x00;
         private byte[] _sendBuffer = new byte[2048];
 
+        public byte GetApiMode()
+        {
+            return GetByteValue(AP);
+        }
+
+        public void SetApiMode(byte mode)
+        {
+            SetByteValue(AP, mode);
+        }
 
         public string GetNodeIdentifier()
         {
-            return GetParameterValue(NI);
+            return GetStringValue(NI);
         }
 
-        private ManualResetEvent _foo = new ManualResetEvent(false);
-        private string GetParameterValue(byte[] command)
+        private byte GetByteValue(byte[] command)
         {
-            SendATCommand(command);
-            // stall here for debugging purposes
-            _foo.WaitOne();
-            return "";
+            var reply = SendATCommand(command);
+            return reply[5];
         }
 
-        private void SendATCommand(byte[] command)
+        private byte SetByteValue(byte[] command, byte value)
         {
-            //TODO: this should return a wait handle of some sort
-            SendFrame(Api.ATCommand, command);
-            //TODO: wait for a response
+            var reply = SendATCommand(command, new byte[] { value });
+            return reply[4];
         }
 
-        private byte SendFrame(Api api, byte[] payload)
+        private string GetStringValue(byte[] command)
+        {
+            var reply = SendATCommand(command);
+            var replyLen = reply.Length - 6;
+            if (replyLen == 0)
+                return "";
+            else
+                return new string(Encoding.UTF8.GetChars(reply, 5, replyLen));
+        }
+
+        private byte[] SendATCommand(byte[] command, byte[] arguments =  null, int timeout = DefaultTimeout)
+        {
+            byte[] reply = null;
+            int payloadLength;
+            if (arguments==null)
+                payloadLength = command.Length;
+            else
+                payloadLength = command.Length + arguments.Length;
+            var payload = new byte[payloadLength];
+            Array.Copy(command, payload, command.Length);
+            if (arguments != null && arguments.Length > 0)
+                Array.Copy(arguments, 0, payload, command.Length, arguments.Length);
+            var response = SendFrame(Api.ATCommand, payload);
+#if MF_FRAMEWORK_VERSION_V4_3
+            if (response.ResponseEvent.WaitOne(timeout, false))
+#else
+            if (response.ResponseEvent.WaitOne(timeout))
+#endif
+            {
+                reply = response.ResponseData;
+                if ((reply[4] & 0x0f) != 0)
+                    throw new XBeeCommandFailedException((uint)(reply[4] & 0x0f));
+            }
+            else
+                throw new XBeeCommunicationTimeoutException();
+
+            return reply;
+        }
+
+        private ResponseRecord SendFrame(Api api, byte[] payload)
         {
             var frameId = GetNextFrameId();
 
@@ -115,7 +164,9 @@ namespace Verdant.Vines.XBee
 
             Send(_sendBuffer, 0, payloadLen + 6);
 
-            return frameId;
+            var rr = new ResponseRecord(frameId);
+            _responseRecords.Add(frameId, rr);
+            return rr;
         }
 
         private byte GetNextFrameId()
@@ -127,7 +178,37 @@ namespace Verdant.Vines.XBee
 
         private void ProcessReceivedFrame(byte[] frame, int offset, int length)
         {
+            var api = frame[0];
 
+            switch (api)
+            {
+                case (byte)Api.ATResponse:
+                    lock (_responseRecords)
+                    {
+                        var frameId = frame[1];
+                        if (_responseRecords.Contains(frameId))
+                        {
+                            var rr = (ResponseRecord)_responseRecords[frameId];
+                            rr.ResponseData = frame;
+                            _responseRecords.Remove(frameId);
+                            rr.ResponseEvent.Set();
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private class ResponseRecord
+        {
+            public ResponseRecord(byte frameId)
+            {
+                this.FrameId = frameId;
+            }
+            public byte FrameId { get; private set; }
+            public readonly ManualResetEvent ResponseEvent = new ManualResetEvent(false);
+            public byte[] ResponseData { get; set; }
         }
     }
 }

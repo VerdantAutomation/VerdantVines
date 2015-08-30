@@ -43,5 +43,24 @@ namespace VinesXBeeUWPTest
                 device.Dispose();
             }
         }
+
+        [TestMethod]
+        public async Task SetApiMode()
+        {
+            var devices = await XBeeDevice.Discover();
+            Assert.IsNotNull(devices);
+            Assert.IsTrue(devices.Count > 0);
+
+            var mode = devices[0].GetApiMode();
+            Assert.AreEqual((byte)1, mode);
+
+            devices[0].SetApiMode((byte)2);
+            mode = devices[0].GetApiMode();
+            Assert.AreEqual((byte)2, mode);
+
+            devices[0].SetApiMode((byte)1);
+            mode = devices[0].GetApiMode();
+            Assert.AreEqual((byte)1, mode);
+        }
     }
 }
