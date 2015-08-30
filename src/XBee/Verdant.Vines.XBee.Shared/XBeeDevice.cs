@@ -97,6 +97,9 @@ namespace Verdant.Vines.XBee
         private static byte[] AP = { 0x41, 0x50 };  // api mode
         private static byte[] HV = { 0x48, 0x56 };  // hardware version
         private static byte[] NI = { 0x4E, 0x49 };  // node identifier
+        private static byte[] NP = { 0x4E, 0x50 };  // max unicast payload size
+        private static byte[] SH = { 0x53, 0x48 };  // max unicast payload size
+        private static byte[] SL = { 0x53, 0x4C };  // max unicast payload size
         private static byte[] VR = { 0x56, 0x52 };  // firmware version
 
         private readonly Hashtable _responseRecords = new Hashtable();
@@ -116,6 +119,13 @@ namespace Verdant.Vines.XBee
         public void SetApiMode(byte mode)
         {
             SetByteValue(AP, mode);
+        }
+
+        public UInt64 GetSerialNumber()
+        {
+            var high = GetUIntValue(SH);
+            var low = GetUIntValue(SL);
+            return (UInt64)high << 32 | low;
         }
 
         public string GetNodeIdentifier()
@@ -140,6 +150,29 @@ namespace Verdant.Vines.XBee
         public ushort GetHardwareVersion()
         {
             return GetUShortValue(HV);
+        }
+
+        public ushort GetPayloadSize()
+        {
+            return GetUShortValue(NP);
+        }
+
+        private uint GetUIntValue(byte[] command)
+        {
+            var reply = SendATCommand(command);
+            return (uint)(reply[5] << 24 | reply[6] << 16 | reply[7] << 8 | reply[8]);
+        }
+
+        private uint SetUIntValue(byte[] command, uint value)
+        {
+            var reply = SendATCommand(command,
+                new byte[] {
+                    (byte)(value >> 24),
+                    (byte)(value >> 16),
+                    (byte)(value >>  8),
+                    (byte)(value & 0xff)
+                });
+            return (uint)(reply[5] << 24 | reply[6] << 16 | reply[7] << 8 | reply[8]);
         }
 
         private ushort GetUShortValue(byte[] command)
@@ -190,7 +223,7 @@ namespace Verdant.Vines.XBee
         {
             byte[] reply = null;
             int payloadLength;
-            if (arguments==null)
+            if (arguments == null)
                 payloadLength = command.Length;
             else
                 payloadLength = command.Length + arguments.Length;
@@ -202,7 +235,7 @@ namespace Verdant.Vines.XBee
 #if MF_FRAMEWORK_VERSION_V4_3
             if (response.ResponseEvent.WaitOne(timeout, false))
 #else
-            if (response.ResponseEvent.WaitOne(timeout))
+        if (response.ResponseEvent.WaitOne(timeout))
 #endif
             {
                 reply = response.ResponseData;
