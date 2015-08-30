@@ -21,6 +21,12 @@ using System.Collections;
 using System.Text;
 using System.Threading;
 
+#if MF_FRAMEWORK_VERSION_V4_3
+using S = Verdant.Vines.XBee.StringExtensions;
+#else
+using S = System.String;
+#endif
+
 namespace Verdant.Vines.XBee
 {
     public partial class XBeeDevice : IDisposable
@@ -66,15 +72,41 @@ namespace Verdant.Vines.XBee
             RxIPv4 = 0xb0,
         }
 
+        public enum AssociationIndication : byte
+        {
+            Success = 0x00, // Successfully formed or joined a network. (Coordinators form a network, routers and end devices join a network.)
+            NoPANFound = 0x21, // Scan found no PANs
+            NoValidPANFound = 0x22, // Scan found no valid PANs based on current SC and ID settings
+            JoinDenied = 0x23, // Valid Coordinator or Routers found, but they are not allowing joining(NJ expired)
+            NoJoinableBeaconsFound = 0x24, // No joinable beacons were found
+            UnexpectedState = 0x25, // Unexpected state, node should not be attempting to join at this time
+            JoinFailed = 0x27, // Node Joining attempt failed (typically due to incompatible security settings)
+            CoordinatorStartFailed = 0x2A, // Coordinator Start attempt failed‘
+            CheckingForExistingCoord = 0x2B, // Checking for an existing coordinator
+            LeaveFailed = 0x2C, // Attempt to leave the network failed
+            NoResponse = 0xAB, // Attempted to join a device that did not respond.
+            SJEUnsecuredKey = 0xAC, // Secure join error - network security key received unsecured
+            SJEKeyNotReceived = 0xAD, // Secure join error - network security key not received
+            SJEConfigError = 0xAF, // Secure join error - joining device does not have the right preconfigured link key
+            Scanning = 0xFF, // Scanning for a ZigBee network (routers and end devices)        }
+
         private const int DefaultTimeout = 50000; // in mS
 
         // Avoid calling System.Text.Encoding repeatedly by just keeping a table of commands
+        private static byte[] AI = { 0x41, 0x49 };  // association indication
         private static byte[] AP = { 0x41, 0x50 };  // api mode
+        private static byte[] HV = { 0x48, 0x56 };  // hardware version
         private static byte[] NI = { 0x4E, 0x49 };  // node identifier
+        private static byte[] VR = { 0x56, 0x52 };  // firmware version
 
         private readonly Hashtable _responseRecords = new Hashtable();
         private byte _frameId = 0x00;
         private byte[] _sendBuffer = new byte[2048];
+
+        public AssociationIndication GetAssociationState()
+        {
+            return (AssociationIndication)GetByteValue(AI);
+        }
 
         public byte GetApiMode()
         {
@@ -91,6 +123,38 @@ namespace Verdant.Vines.XBee
             return GetStringValue(NI);
         }
 
+        public void SetNodeIdentifier(string ident)
+        {
+            if (S.IsNullOrEmpty(ident))
+                ident = "";
+            if (ident.Length > 20)
+                throw new ArgumentException("ident must be 0-20 characters in length");
+            SetStringValue(NI, ident + '\r');
+        }
+
+        public ushort GetFirmwareVersion()
+        {
+            return GetUShortValue(VR);
+        }
+
+        public ushort GetHardwareVersion()
+        {
+            return GetUShortValue(HV);
+        }
+
+        private ushort GetUShortValue(byte[] command)
+        {
+            var reply = SendATCommand(command);
+            return (ushort)(reply[5] << 8 | reply[6]);
+        }
+
+        private ushort SetUShortValue(byte[] command, ushort value)
+        {
+            var reply = SendATCommand(command, 
+                new byte[] { (byte)(value >> 8), (byte)(value & 0xff) });
+            return (ushort)(reply[5] << 8 | reply[6]);
+        }
+
         private byte GetByteValue(byte[] command)
         {
             var reply = SendATCommand(command);
@@ -100,7 +164,7 @@ namespace Verdant.Vines.XBee
         private byte SetByteValue(byte[] command, byte value)
         {
             var reply = SendATCommand(command, new byte[] { value });
-            return reply[4];
+            return reply[5];
         }
 
         private string GetStringValue(byte[] command)
@@ -111,6 +175,15 @@ namespace Verdant.Vines.XBee
                 return "";
             else
                 return new string(Encoding.UTF8.GetChars(reply, 5, replyLen));
+        }
+
+        private void SetStringValue(byte[] command, string value)
+        {
+            var data = Encoding.UTF8.GetBytes(value);
+            var buffer = new byte[data.Length + 1];
+            Array.Copy(data, buffer, data.Length);
+            buffer[buffer.Length - 1] = (byte)0x00;
+            SendATCommand(command, data);
         }
 
         private byte[] SendATCommand(byte[] command, byte[] arguments =  null, int timeout = DefaultTimeout)

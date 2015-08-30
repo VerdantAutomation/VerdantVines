@@ -89,6 +89,14 @@ namespace Verdant.Vines.XBee
                             candidate = new XBeeDevice(serport);
                             try
                             {
+                                var hardwareVersion = candidate.GetHardwareVersion();
+                                if ((hardwareVersion >> 8) != 0x19 &&
+                                    (hardwareVersion >> 8) != 0x1e &&  // undocumented but valid
+                                    (hardwareVersion >> 8) != 0x1a)
+                                    break; // unsupported hardware
+                                var firmwareVersion = candidate.GetFirmwareVersion();
+                                if (((firmwareVersion >> 8) & 0xf0) != 0x20)
+                                    break; // unsupported firmware
                                 var ni = candidate.GetNodeIdentifier();
                                 if (ni != null)
                                     success = true;
