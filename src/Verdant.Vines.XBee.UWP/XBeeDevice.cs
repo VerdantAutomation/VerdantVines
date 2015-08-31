@@ -80,10 +80,15 @@ namespace Verdant.Vines.XBee
                     var baudrates = new uint[] { 9600, 19200, 57600, 115200 };
                     bool success = false;
                     XBeeDevice candidate = null;
-                    foreach (var baud in baudrates)
+                    var serport = await SerialDevice.FromIdAsync(device.Id);
+                    if (serport != null)
                     {
-                        var serport = await SerialDevice.FromIdAsync(device.Id);
-                        if (serport != null)
+                        serport.IsDataTerminalReadyEnabled = true;
+                        serport.IsRequestToSendEnabled = true;
+                        serport.DataBits = 8;
+                        serport.StopBits = SerialStopBitCount.One;
+                        serport.Parity = SerialParity.None;
+                        foreach (var baud in baudrates)
                         {
                             serport.BaudRate = baud;
                             candidate = new XBeeDevice(serport);
@@ -97,18 +102,16 @@ namespace Verdant.Vines.XBee
                                 var firmwareVersion = candidate.GetFirmwareVersion();
                                 if (((firmwareVersion >> 8) & 0xf0) != 0x20)
                                     break; // unsupported firmware
-                                var ni = candidate.GetNodeIdentifier();
-                                if (ni != null)
-                                    success = true;
+                                success = true;
                             }
                             catch (Exception ex)
                             {
                                 Debug.WriteLine("Exception during discovery: " + ex);
                                 success = false;
                             }
+                            if (success)
+                                break;
                         }
-                        if (success)
-                            break;
                     }
                     if (success && candidate != null)
                     {

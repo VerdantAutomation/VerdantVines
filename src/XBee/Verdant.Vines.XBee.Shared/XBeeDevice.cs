@@ -88,7 +88,8 @@ namespace Verdant.Vines.XBee
             SJEUnsecuredKey = 0xAC, // Secure join error - network security key received unsecured
             SJEKeyNotReceived = 0xAD, // Secure join error - network security key not received
             SJEConfigError = 0xAF, // Secure join error - joining device does not have the right preconfigured link key
-            Scanning = 0xFF, // Scanning for a ZigBee network (routers and end devices)        }
+            Scanning = 0xFF, // Scanning for a ZigBee network (routers and end devices)
+        }
 
         private const int DefaultTimeout = 50000; // in mS
 

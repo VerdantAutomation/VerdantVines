@@ -37,7 +37,7 @@ namespace VinesXBeeUWPTest
         public async Task Discover()
         {
             var devices = await XBeeDevice.Discover();
-            Assert.AreEqual(2, devices.Count);
+            Assert.IsTrue(devices.Count > 0);
             foreach (var device in devices)
             {
                 device.Dispose();
