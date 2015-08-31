@@ -29,6 +29,8 @@ using S = System.String;
 
 namespace Verdant.Vines.XBee
 {
+    public delegate void ReceivedPacketEventHandler(object sender, UInt64 address, ushort addr16, byte options, byte[] data);
+
     public partial class XBeeDevice : IDisposable
     {
         private enum Api
@@ -110,7 +112,10 @@ namespace Verdant.Vines.XBee
 
         private readonly Hashtable _responseRecords = new Hashtable();
         private byte _frameId = 0x00;
+        private int _maxPayload = -1;
         private byte[] _sendBuffer = new byte[2048];
+
+        public event ReceivedPacketEventHandler OnPacketReceived;
 
         public AssociationIndication GetAssociationState()
         {
@@ -153,6 +158,24 @@ namespace Verdant.Vines.XBee
             return GetUShortValue(VR);
         }
 
+        public bool IsCoordinator()
+        {
+            var firmwareVersion = this.GetFirmwareVersion();
+            return ((firmwareVersion & 0x0f00) == 0x0100);
+        }
+
+        public bool IsRouter()
+        {
+            var firmwareVersion = this.GetFirmwareVersion();
+            return ((firmwareVersion & 0x0f00) == 0x0300);
+        }
+
+        public bool IsEndpoint()
+        {
+            var firmwareVersion = this.GetFirmwareVersion();
+            return ((firmwareVersion & 0x0f00) == 0x0900);
+        }
+
         public ushort GetHardwareVersion()
         {
             return GetUShortValue(HV);
@@ -187,6 +210,39 @@ namespace Verdant.Vines.XBee
         public void Sleep()
         {
             SendATCommand(SI);
+        }
+
+        public void Send(UInt64 address, string value, int timeout = DefaultTimeout)
+        {
+            var data = Encoding.UTF8.GetBytes(value);
+            Send(address, data, timeout);
+        }
+
+        public void Send(UInt64 address, byte[] data, int timeout = DefaultTimeout)
+        {
+            byte[] reply = null;
+
+            if (_maxPayload == -1)
+                _maxPayload = this.GetPayloadSize();
+
+            if (data.Length > _maxPayload)
+                throw new ArgumentException("data must be smaller than the value returned by GetPayloadSize");
+
+            var response = SendFrame(Api.TransmitRequest, data, address);
+#if MF_FRAMEWORK_VERSION_V4_3
+            if (response.ResponseEvent.WaitOne(timeout, false))
+#else
+        if (response.ResponseEvent.WaitOne(timeout))
+#endif
+            {
+                reply = response.ResponseData;
+                if (reply[0] != (byte)Api.TxStatus2)
+                    throw new Exception("Unexpected response");
+                if (reply[5] != 0)
+                    throw new XBeeSendFailedException((uint)reply[5], (uint)reply[6]);
+            }
+            else
+                throw new XBeeCommunicationTimeoutException();
         }
 
         private uint GetUIntValue(byte[] command)
@@ -280,27 +336,55 @@ namespace Verdant.Vines.XBee
             return reply;
         }
 
-        private ResponseRecord SendFrame(Api api, byte[] payload)
+        private ResponseRecord SendFrame(Api api, byte[] payload, UInt64 address = 0UL)
         {
             var frameId = GetNextFrameId();
 
             var payloadLen = payload.Length;
-            var len = (payloadLen + 2) & 0xffff;
-            _sendBuffer[0] = 0x7e;
+
+            int idx = 0;
+            _sendBuffer[idx++] = 0x7e;
+            _sendBuffer[idx++] = 0x00;
+            _sendBuffer[idx++] = 0x00;
+            _sendBuffer[idx++] = (byte)api;
+            _sendBuffer[idx++] = frameId;
+            if (api==Api.Tx64 || api==Api.TransmitRequest)
+            {
+                _sendBuffer[idx++] = (byte)(address >> 56);
+                _sendBuffer[idx++] = (byte)(address >> 48);
+                _sendBuffer[idx++] = (byte)(address >> 40);
+                _sendBuffer[idx++] = (byte)(address >> 32);
+
+                _sendBuffer[idx++] = (byte)(address >> 24);
+                _sendBuffer[idx++] = (byte)(address >> 16);
+                _sendBuffer[idx++] = (byte)(address >>  8);
+                _sendBuffer[idx++] = (byte)(address & 0xff);
+
+                if (api==Api.TransmitRequest)
+                {
+                    _sendBuffer[idx++] = 0xFF;
+                    _sendBuffer[idx++] = 0xFE;
+
+                    _sendBuffer[idx++] = 0x00; // radius
+                }
+                _sendBuffer[idx++] = 0x00; // options
+            }
+            Array.Copy(payload, 0, _sendBuffer, idx, payloadLen);
+            idx += payloadLen;
+
+            // Update the length
+            var len = idx - 3;
             _sendBuffer[1] = (byte)(len >> 8);
             _sendBuffer[2] = (byte)(len & 0xff);
-            _sendBuffer[3] = (byte)api;
-            _sendBuffer[4] = frameId;
-            Array.Copy(payload, 0, _sendBuffer, 5, payloadLen);
 
             int sum = 0;
-            for (int i = 3 ; i<payloadLen+5; ++i)
+            for (int i = 3 ; i<idx; ++i)
             {
                 sum += _sendBuffer[i];
             }
-            _sendBuffer[5 + payloadLen] = (byte)(0xff - (byte)(sum & 0xff));
+            _sendBuffer[idx++] = (byte)(0xff - (byte)(sum & 0xff));
 
-            Send(_sendBuffer, 0, payloadLen + 6);
+            WriteFrame(_sendBuffer, 0, idx);
 
             var rr = new ResponseRecord(frameId);
             _responseRecords.Add(frameId, rr);
@@ -314,27 +398,39 @@ namespace Verdant.Vines.XBee
             return _frameId;
         }
 
-        private void ProcessReceivedFrame(byte[] frame, int offset, int length)
+        private void ProcessReceivedFrame(byte[] frame, int length)
         {
             var api = frame[0];
 
-            switch (api)
+            if (api == (byte)Api.Receive)
             {
-                case (byte)Api.ATResponse:
-                    lock (_responseRecords)
+                if (this.OnPacketReceived != null)
+                {
+                    UInt64 address = (UInt64)frame[1] << 56 | (UInt64)frame[2] << 48 | (UInt64)frame[3] << 40 | (UInt64)frame[4] << 32 | (UInt64)frame[5] << 24 | (UInt64)frame[6] << 16 | (UInt64)frame[7] << 8 | (UInt64)frame[8];
+                    ushort addr16 = (ushort)(frame[9] << 8 | frame[10]);
+                    byte options = frame[11];
+                    var data = new byte[length - 12];
+                    Array.Copy(frame, 12, data, 0, length - 12);
+                    this.OnPacketReceived(this, address, addr16, options, data);
+                }
+            }
+            else
+            {
+                lock (_responseRecords)
+                {
+                    var frameId = frame[1];
+                    if (_responseRecords.Contains(frameId))
                     {
-                        var frameId = frame[1];
-                        if (_responseRecords.Contains(frameId))
-                        {
-                            var rr = (ResponseRecord)_responseRecords[frameId];
-                            rr.ResponseData = frame;
-                            _responseRecords.Remove(frameId);
-                            rr.ResponseEvent.Set();
-                        }
+                        var rr = (ResponseRecord)_responseRecords[frameId];
+                        rr.ResponseData = frame;
+                        _responseRecords.Remove(frameId);
+                        rr.ResponseEvent.Set();
                     }
-                    break;
-                default:
-                    break;
+                    else
+                    {
+                        // unsolicited notification
+                    }
+                }
             }
         }
 

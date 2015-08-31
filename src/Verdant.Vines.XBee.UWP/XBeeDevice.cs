@@ -168,7 +168,7 @@ namespace Verdant.Vines.XBee
                                 }
                                 else
                                 {
-                                    ProcessReceivedFrame(dataArray, 0, (int)length);
+                                    ProcessReceivedFrame(dataArray, (int)length);
                                     if (ct.IsCancellationRequested)
                                         break;
                                 }
@@ -185,7 +185,7 @@ namespace Verdant.Vines.XBee
             }
         }
 
-        private uint Send(byte[] data, int offset, int length)
+        private uint WriteFrame(byte[] data, int offset, int length)
         {
             var buffer = data.AsBuffer(offset, length);
             var cbSent = _output.WriteAsync(buffer).AsTask().Result;

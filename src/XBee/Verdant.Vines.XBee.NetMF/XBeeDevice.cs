@@ -43,7 +43,7 @@ namespace Verdant.Vines.XBee
 
         }
 
-        private uint Send(byte[] data, int offset, int length)
+        private uint WriteFrame(byte[] data, int offset, int length)
         {
             _serialPort.Write(data, offset, length);
             return (uint)length;
@@ -80,7 +80,7 @@ namespace Verdant.Vines.XBee
                         }
                         else
                         {
-                            ProcessReceivedFrame(frameBuffer, 0, length);
+                            ProcessReceivedFrame(frameBuffer, length);
                         }
                     }
                 }

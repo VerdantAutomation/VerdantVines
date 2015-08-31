@@ -37,4 +37,16 @@ namespace Verdant.Vines.XBee
 
         public uint ErrorCode { get; private set; }
     }
+
+    public class XBeeSendFailedException : Exception
+    {
+        public XBeeSendFailedException(uint deliveryStatus, uint discoveryStatus)
+        {
+            this.DeliveryStatus = deliveryStatus;
+            this.DiscoveryStatus = discoveryStatus;
+        }
+
+        public uint DeliveryStatus { get; private set; }
+        public uint DiscoveryStatus { get; private set; }
+    }
 }
