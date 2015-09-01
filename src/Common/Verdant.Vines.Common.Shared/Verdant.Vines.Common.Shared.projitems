@@ -9,5 +9,8 @@
     <Import_RootNamespace>Verdant.Vines.Common.Shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)INode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ITransport.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServiceDescription.cs" />
   </ItemGroup>
 </Project>

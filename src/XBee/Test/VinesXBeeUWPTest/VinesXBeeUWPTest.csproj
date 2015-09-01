@@ -128,17 +128,17 @@
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Verdant.Vines.Common.UWP\Verdant.Vines.Common.UWP.csproj">
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\Verdant.Vines.Common.UWP\Verdant.Vines.Common.UWP.csproj">
       <Project>{67010aca-8f2a-4485-ba1e-f44963b5b77b}</Project>
       <Name>Verdant.Vines.Common.UWP</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Verdant.Vines.XBee.UWP\Verdant.Vines.XBee.UWP.csproj">
+    <ProjectReference Include="..\..\Verdant.Vines.XBee.UWP\Verdant.Vines.XBee.UWP.csproj">
       <Project>{ae5cd2c0-169f-4458-9782-dae18d3100ae}</Project>
       <Name>Verdant.Vines.XBee.UWP</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

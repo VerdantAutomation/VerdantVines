@@ -117,7 +117,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Content Include="Properties\Verdant.Vines.Common.UWP.rd.xml" />
   </ItemGroup>
-  <Import Project="..\Common\Verdant.Vines.Common.Shared\Verdant.Vines.Common.Shared.projitems" Label="Shared" />
+  <Import Project="..\Verdant.Vines.Common.Shared\Verdant.Vines.Common.Shared.projitems" Label="Shared" />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

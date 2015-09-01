@@ -118,12 +118,12 @@
     <Content Include="Properties\Verdant.Vines.XBee.UWP.rd.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Verdant.Vines.Common.UWP\Verdant.Vines.Common.UWP.csproj">
+    <ProjectReference Include="..\..\Common\Verdant.Vines.Common.UWP\Verdant.Vines.Common.UWP.csproj">
       <Project>{67010aca-8f2a-4485-ba1e-f44963b5b77b}</Project>
       <Name>Verdant.Vines.Common.UWP</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="..\XBee\Verdant.Vines.XBee.Shared\Verdant.Vines.XBee.Shared.projitems" Label="Shared" />
+  <Import Project="..\Verdant.Vines.XBee.Shared\Verdant.Vines.XBee.Shared.projitems" Label="Shared" />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

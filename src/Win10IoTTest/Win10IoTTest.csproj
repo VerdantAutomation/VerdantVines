@@ -128,19 +128,19 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Verdant.Vines.Common.UWP\Verdant.Vines.Common.UWP.csproj">
-      <Project>{67010aca-8f2a-4485-ba1e-f44963b5b77b}</Project>
-      <Name>Verdant.Vines.Common.UWP</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Verdant.Vines.XBee.UWP\Verdant.Vines.XBee.UWP.csproj">
-      <Project>{ae5cd2c0-169f-4458-9782-dae18d3100ae}</Project>
-      <Name>Verdant.Vines.XBee.UWP</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <SDKReference Include="WindowsIoT, Version=10.0.10240.0">
       <Name>Windows IoT Extensions for the UWP</Name>
     </SDKReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Verdant.Vines.Common.UWP\Verdant.Vines.Common.UWP.csproj">
+      <Project>{67010aca-8f2a-4485-ba1e-f44963b5b77b}</Project>
+      <Name>Verdant.Vines.Common.UWP</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\XBee\Verdant.Vines.XBee.UWP\Verdant.Vines.XBee.UWP.csproj">
+      <Project>{ae5cd2c0-169f-4458-9782-dae18d3100ae}</Project>
+      <Name>Verdant.Vines.XBee.UWP</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
