@@ -63,30 +63,46 @@ namespace Verdant.Vines.XBee
 
                     if (intro == 0x7e)
                     {
-                        _serialPort.Read(buffer, 0, 2);
+                        BlockingRead(buffer, 0, 2);
                         var length = buffer[0] << 8 | buffer[1];
-                        var frameBuffer = new byte[length + 1];
-                        _serialPort.Read(frameBuffer, 0, length + 1);
+                        if (length > 0)
+                        {
+                            var frameBuffer = new byte[length + 1];
+                            BlockingRead(frameBuffer, 0, length + 1);
 
-                        int sum = 0;
-                        for (int i = 0; i < frameBuffer.Length - 1; ++i)
-                        {
-                            sum += frameBuffer[i];
-                        }
-                        sum = 0xff - (sum & 0xff);
-                        if ((byte)sum != frameBuffer[frameBuffer.Length - 1])
-                        {
-                            Debug.Print("Checksum failure");
-                        }
-                        else
-                        {
-                            ProcessReceivedFrame(frameBuffer, length);
+                            int sum = 0;
+                            for (int i = 0; i < frameBuffer.Length - 1; ++i)
+                            {
+                                sum += frameBuffer[i];
+                            }
+                            sum = 0xff - (sum & 0xff);
+                            if ((byte)sum != frameBuffer[frameBuffer.Length - 1])
+                            {
+                                Debug.Print("Checksum failure");
+                            }
+                            else
+                            {
+                                ProcessReceivedFrame(frameBuffer, length);
+                            }
                         }
                     }
                 }
                 catch (Exception ex)
                 {
                     Debug.Print("Exception in XBee read loop : " + ex.Message);
+                }
+            }
+        }
+
+        private void BlockingRead(byte[] buffer, int offset, int desiredLen)
+        {
+            while (desiredLen > 0)
+            {
+                var cb = _serialPort.Read(buffer, offset, desiredLen);
+                if (cb > 0)
+                {
+                    offset += cb;
+                    desiredLen -= cb;
                 }
             }
         }

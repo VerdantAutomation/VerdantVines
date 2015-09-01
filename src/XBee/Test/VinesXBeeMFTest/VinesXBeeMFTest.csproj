@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
-    <AssemblyName>Verdant.Vines.XBee.NetMF</AssemblyName>
-    <OutputType>Library</OutputType>
-    <RootNamespace>Verdant.Vines.XBee.NetMF</RootNamespace>
+    <AssemblyName>VinesXBeeMFTest</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>VinesXBeeMFTest</RootNamespace>
     <ProjectTypeGuids>{b69e3092-b931-443c-abe7-7e7b65f2a37f};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{DFE126D3-7216-4332-8CE5-DD0DA514C94F}</ProjectGuid>
+    <ProjectGuid>{72BCEFE1-89A6-49F9-944F-80DA2D3F5C44}</ProjectGuid>
     <TargetFrameworkVersion>v4.3</TargetFrameworkVersion>
     <NetMfTargetsBaseDir Condition="'$(NetMfTargetsBaseDir)'==''">$(MSBuildExtensionsPath32)\Microsoft\.NET Micro Framework\</NetMfTargetsBaseDir>
   </PropertyGroup>
@@ -29,24 +29,36 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="DebuggerBrowsableState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StringExtensions.cs" />
-    <Compile Include="XBeeDevice.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.SPOT.Hardware" />
     <Reference Include="Microsoft.SPOT.Hardware.SerialPort" />
     <Reference Include="Microsoft.SPOT.Native" />
-    <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Common\Verdant.Vines.Common.NetMF\Verdant.Vines.Common.NetMF.csproj">
+    <EmbeddedResource Include="Resources.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\Verdant.Vines.Common.NetMF\Verdant.Vines.Common.NetMF.csproj">
       <Project>{50EE0E07-A632-49D1-9673-E2D0D9CC15DE}</Project>
       <Name>Verdant.Vines.Common.NetMF</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Verdant.Vines.XBee.NetMF\Verdant.Vines.XBee.NetMF.csproj">
+      <Project>{DFE126D3-7216-4332-8CE5-DD0DA514C94F}</Project>
+      <Name>Verdant.Vines.XBee.NetMF</Name>
+    </ProjectReference>
   </ItemGroup>
-  <Import Project="..\Verdant.Vines.XBee.Shared\Verdant.Vines.XBee.Shared.projitems" Label="Shared" />
   <Import Condition="EXISTS('$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets')" Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <Import Condition="!EXISTS('$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets')" Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
