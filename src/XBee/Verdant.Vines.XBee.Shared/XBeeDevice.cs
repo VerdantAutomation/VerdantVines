@@ -113,7 +113,7 @@ namespace Verdant.Vines.XBee
         private readonly Hashtable _responseRecords = new Hashtable();
         private byte _frameId = 0x00;
         private int _maxPayload = -1;
-        private byte[] _sendBuffer = new byte[2048];
+        private byte[] _sendBuffer = new byte[300];
 
         public event ReceivedPacketEventHandler OnPacketReceived;
 
